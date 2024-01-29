@@ -3,6 +3,7 @@
 *.sln
 *.vcxproj
 *.vcxproj.filters
+Notris.exe
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudio,visualstudiocode,git,premake-gmake
