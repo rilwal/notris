@@ -4,7 +4,11 @@
 *.vcxproj
 *.vcxproj.filters
 Notris.exe
+bin
+obj
+settings.ini
 
+.vscode
 
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudio,visualstudiocode,git,premake-gmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio,visualstudiocode,git,premake-gmake
