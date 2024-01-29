@@ -7,8 +7,7 @@
 #include "util.hpp"
 #include "audio.hpp"
 
-// Settings UI stuff
-// TODO: consider moving to a seperate UI.hpp if we need elsewhere
+// UI stuff
 
 class IMenu {
 public:

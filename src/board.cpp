@@ -15,8 +15,6 @@ Board::Board() {
 }
 
 void Board::reset() {
-
-
 	for (int y = 0; y < c_board_height; y++) {
 		for (int x = 0; x < c_board_width; x++) {
 			board_data[y * c_board_width + x] = c_nothing;

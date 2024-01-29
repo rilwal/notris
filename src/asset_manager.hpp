@@ -5,10 +5,6 @@
 
 	Assets should have a standard API to load from file or from memory.
 	All asset types should be managed here.
-	
-	TODO: Virtual filesystem type structure?
-	TODO: Some kind of map to find assets by name?
-	TODO: Load from memory buffer
 */
 
 #include <iostream>
@@ -53,28 +49,9 @@ private:
 public:
 	template <Asset T>
 	Ref<T> LoadAsset(std::string filename, bool hot_reload = true) {
-		//TODO: Think a lot about allocation!
 		Ref<T> asset = make_ref<T>();
 		asset->path = filename;
 		asset->load_from_file(filename.c_str());
-
-		/*if (hot_reload) {
-			std::filesystem::path file_path = filename;
-			WeakRef<T> reload_ptr = make_weak_ref(asset);
-
-			auto x = new wtr::watch(file_path.remove_filename(), [reload_ptr, filename](wtr::event ev) {
-				if (auto asset = reload_ptr.lock()) {
-					if (ev.path_name == std::filesystem::path(filename)) {
-						if (asset->_hot_reload && ev.effect_type == wtr::event::effect_type::modify) {
-							asset->reload();
-						}
-					}
-				}
-			});
-
-
-			asset->_hot_reload = true;
-		}*/
 
 		asset_lib<T>.push_back(make_weak_ref(asset));
 		path_to_asset_map<T>[std::string(filename)] = make_weak_ref(asset);
