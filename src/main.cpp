@@ -19,10 +19,7 @@
 #include "board.hpp"
 #include "settings.hpp"
 
-
-#include <Windows.h>
-
-int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow) {
+int WinMain(int hInstance, int hPrevInstance, char* pCmdLine, int nCmdShow) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 	Mix_Init(MIX_INIT_MP3);

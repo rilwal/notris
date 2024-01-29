@@ -61,7 +61,7 @@ void KeySetting::draw(SDL_Renderer* renderer) {
 	}
 }
 
-bool KeySetting::is_active() {
+bool KeySetting::is_active() const {
 	return m_active;
 }
 

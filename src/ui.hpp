@@ -12,17 +12,17 @@
 
 class IMenu {
 public:
-	Rect get_content_box() {
+	Rect get_content_box() const {
 		return m_content_box;
 	}
 
-	Rect get_border_box() {
+	Rect get_border_box() const {
 		return m_border_box;
 	}
 
 	// Gets mouse position relative to box
 	// For use by children
-	glm::ivec2 get_mouse_pos() {
+	glm::ivec2 get_mouse_pos() const {
 		return InputManager::get_mouse_pos() - m_content_box.pos + glm::ivec2(0, m_scroll);
 	}
 
@@ -40,12 +40,12 @@ public:
 	virtual void update() = 0;
 	virtual void draw(SDL_Renderer* renderer) = 0;
 
-	glm::ivec2 get_pos() { return m_rect.pos; }
+	glm::ivec2 get_pos() const { return m_rect.pos; }
 	virtual void set_pos(glm::ivec2 pos) { m_rect.pos = pos; }
 
-	glm::ivec2 get_size() { return m_rect.size; }
+	glm::ivec2 get_size() const { return m_rect.size; }
 
-	Rect get_bounding_box() {
+	Rect get_bounding_box() const {
 		return m_rect;
 	}
 
@@ -54,10 +54,10 @@ public:
 	}
 
 protected:
-	IMenu* m_parent;
-	Rect m_rect;
-	std::string m_label;
-	std::string m_config_key;
+	IMenu* m_parent = nullptr;
+	Rect m_rect = {};
+	std::string m_label = "";
+	std::string m_config_key = "";
 };
 
 
@@ -91,7 +91,7 @@ struct KeySetting : public IControl {
 	void update() override;
 	void draw(SDL_Renderer* renderer) override;
 
-	bool is_active();
+	bool is_active() const;
 
 	void set_pos(glm::ivec2 position) override;
 
@@ -127,12 +127,12 @@ public:
 	void set_pos(glm::ivec2 position) override;
 
 private:
-	Rect m_slider_rect;
-	Rect m_skip_area;
+	Rect m_slider_rect = {};
+	Rect m_skip_area = {};
 
-	glm::ivec2 m_line_start;
-	glm::ivec2 m_line_end;
-	bool m_dragging;
+	glm::ivec2 m_line_start = {};
+	glm::ivec2 m_line_end = {};
+	bool m_dragging = false;
 
 	Ref<Audio> m_sample;
 

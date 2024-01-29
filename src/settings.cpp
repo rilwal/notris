@@ -10,6 +10,11 @@ SettingsManager sm;
 void SettingsManager::save_settings(std::string filename) {
 	FILE* settings_file;
 	fopen_s(&settings_file, filename.c_str(), "w");
+	
+	if (!settings_file) {
+		fprintf(stderr, "Failed to save settings file!\n");
+		return;
+	}
 
 	for (auto& [name, setting] : m_settings<bool>) {
 		fprintf(settings_file, "bool %s = %s\n", name.c_str(), setting ? "true" : "false");
@@ -69,6 +74,8 @@ SettingsMenu::SettingsMenu() {
 
 	m_border_box = { position, size };
 	m_content_box = { position + glm::ivec2(c_board_padding) + glm::ivec2(0, title_height), size - glm::ivec2(c_board_padding * 2) - glm::ivec2(0, title_height)};
+	m_dragging_scrollbar = false;
+	m_scrollbar_drag_offset = 0;
 
 	controls = {
 		std::make_shared<TextControl>("General", 0.8f),

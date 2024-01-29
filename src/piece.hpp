@@ -25,9 +25,8 @@ extern OffsetTable o_offsets;
 
 struct Piece {
 	// offsets for the four blocks
-	glm::ivec2 offsets[4];
-	Color color;
-	//bool odd_size;
+	glm::ivec2 offsets[4] = {};
+	Color color = {};
 	OffsetTable* ot = &standard_offsets;
 	int rotation_state = 0;
 

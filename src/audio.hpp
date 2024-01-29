@@ -11,7 +11,7 @@ struct Audio : public IAsset {
 		COUNT
 	};
 
-	Audio() : IAsset("Audio") {};
+	Audio() : IAsset("Audio"), m_music_handle(0) {};
 
 	virtual void load_from_file(const char* filename) override;
 	virtual void reload() override;
