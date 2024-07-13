@@ -86,6 +86,25 @@ private:
 };
 
 
+struct FRect {
+	union {
+		struct {
+			float x, y, w, h;
+		};
+
+		struct {
+			glm::vec2 pos;
+			glm::vec2 size;
+		};
+	};
+
+	SDL_FRect* sdl() {
+		// bad code, but very convenient!
+		// Be very careful about the lifetime of this pointer!!
+		return (SDL_FRect*)this;
+	}
+};
+
 struct Rect {
 	union {
 		struct {
@@ -102,19 +121,21 @@ struct Rect {
 	Rect(glm::ivec2 pos, glm::ivec2 size) : pos(pos), size(size) {};
 	Rect(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) {};
 
+	FRect fp() const { return FRect{ (float)x, (float)y, (float)w, (float)h }; }
 
 	bool contains(glm::ivec2 pt) const {
 		glm::vec2 a = pos;
 		glm::vec2 b = pos + size;
 		return pt.x >= a.x && pt.x < b.x&& pt.y >= a.y && pt.y < b.y;
 	}
-
+	 
 	Rect expand(int amount) {
 		return { pos - amount, size + amount * 2 };
 	}
 
 	SDL_Rect* sdl() {
 		// bad code, but very convenient!
+		// Be very careful about the lifetime of this pointer!!
 		return (SDL_Rect*)this;
 	}
 };
@@ -126,8 +147,3 @@ SDL_Rect make_rect(glm::ivec2 top_left, glm::ivec2 size);
 void draw_rect(SDL_Renderer* renderer, glm::ivec2 pos, glm::ivec2 size);
 void draw_rect(SDL_Renderer* renderer, Rect r);
 
-glm::ivec2 get_text_size(std::string message, float size = 1.0f);
-void draw_text(SDL_Renderer* renderer, std::string message, glm::vec2 pos, Color c, bool center=false, float size=1.0f);
-
-
-extern TTF_Font* G_FONT;

@@ -34,6 +34,7 @@ void draw_rect(SDL_Renderer* renderer, glm::ivec2 pos, glm::ivec2 size) {
 	SDL_RenderFillRect(renderer, &r);
 }
 
+
 void InputManager::update(float delta_time) {
 	m_last_key_state = m_key_state;
 
@@ -84,47 +85,7 @@ bool InputManager::key_pressed(SDL_Keycode ks) {
 	return !m_last_key_state[ks] && m_key_state[ks];
 }
 
-glm::ivec2 get_text_size(std::string message, float size) {
-	glm::ivec2 ret = {};
-	TTF_SizeText(G_FONT, message.c_str(), &ret.x, &ret.y);
-	ret = (glm::ivec2)((glm::vec2)ret * size);
-	return ret;
-}
 
-
-std::map<std::string, SDL_Texture*> text_render_cache;
-
-
-void draw_text(SDL_Renderer* renderer, std::string message, glm::vec2 pos, Color c, bool center, float size) {
-	if (text_render_cache.contains(message)) {
-		auto text_texture = text_render_cache[message];
-
-		glm::ivec2 text_size = {};
-		SDL_QueryTexture(text_texture, nullptr, nullptr, &text_size.x, &text_size.y);
-
-		text_size = (glm::vec2)text_size * size;
-		if (center) pos.x -= text_size.x / 2;
-
-		auto text_rect = make_rect(pos, text_size);
-		SDL_RenderCopy(renderer, text_texture, nullptr, &text_rect);
-		return;
-	}
-
-	SDL_Surface* score_surface = TTF_RenderText_Blended(G_FONT, message.c_str(), c.sdl());
-	SDL_Texture* score_texture = SDL_CreateTextureFromSurface(renderer, score_surface);
-	SDL_FreeSurface(score_surface);
-	
-	glm::ivec2 text_size = {};
-	SDL_QueryTexture(score_texture, nullptr, nullptr, &text_size.x, &text_size.y);
-
-	text_size = (glm::vec2)text_size * size;
-	if (center) pos.x -= text_size.x / 2;
-
-	auto text_rect = make_rect(pos, text_size);
-	SDL_RenderCopy(renderer, score_texture, nullptr, &text_rect);
-
-	text_render_cache[message] = score_texture;
-}
 
 
 std::vector<uint8_t> load_file(std::string filename, size_t offset, size_t len) {

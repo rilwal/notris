@@ -5,6 +5,7 @@
 #include "config.hpp"
 #include "util.hpp"
 #include "color.hpp"
+#include "renderer.hpp"
 
 enum RotationState {
 	Standard,
@@ -37,7 +38,7 @@ struct Piece {
 
 	// pos is the position in board coordinates,
 	// offset is an offset in pixels for use in animations etc.
-	void draw(SDL_Renderer* renderer, glm::ivec2 pos, glm::ivec2 offset={0,0}, float brightness=1.0);
+	void draw(Renderer& renderer, glm::ivec2 pos, glm::ivec2 offset={0,0}, float brightness=1.0);
 	
 
 	// Rotates a piece without regard to it's surrounding board

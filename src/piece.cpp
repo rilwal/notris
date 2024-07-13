@@ -52,15 +52,13 @@ void Piece::rotate(bool clockwise) {
 	rotation_state = (rotation_state + (clockwise ? 1 : 3)) % 4;
 }
 
-void Piece::draw(SDL_Renderer* renderer, glm::ivec2 pos, glm::ivec2 offset, float brightness) {
-	Color backup = get_draw_color(renderer);
+void Piece::draw(Renderer& renderer, glm::ivec2 pos, glm::ivec2 offset, float brightness) {
 	Color copy = color;
 	copy.lighten(brightness);
-	set_draw_color(renderer, copy);
+
 	for (int i = 0; i < 4; i++) {
 		if (pos.y + offsets[i].y < 0) continue; // don't render off the top
 		Rect r(board_pos + c_block_margin + pos * block_stride + (c_block_size + c_block_margin) * offsets[i] + offset, glm::ivec2(c_block_size));
-		draw_rect(renderer, r);
+		renderer.draw_rect(r, copy);
 	}
-	set_draw_color(renderer, backup);
 }

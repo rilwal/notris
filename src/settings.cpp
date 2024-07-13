@@ -69,8 +69,8 @@ void SettingsManager::load_settings(std::string filename) {
 
 }
 
-SettingsMenu::SettingsMenu() {
-	int title_height = get_text_size("Settings", 1.4f).y;
+SettingsMenu::SettingsMenu(Renderer& renderer) {
+	int title_height = renderer.get_text_size("Settings", 1.4f).y;
 
 	m_border_box = { position, size };
 	m_content_box = { position + glm::ivec2(c_board_padding) + glm::ivec2(0, title_height), size - glm::ivec2(c_board_padding * 2) - glm::ivec2(0, title_height)};
@@ -78,21 +78,21 @@ SettingsMenu::SettingsMenu() {
 	m_scrollbar_drag_offset = 0;
 
 	controls = {
-		std::make_shared<TextControl>("General", 0.8f),
+		std::make_shared<TextControl>(renderer, "General", 0.8f),
 		std::make_shared<Checkbox>("enable_ghost", "Enable Ghost Piece", true),
 		std::make_shared<Checkbox>("enable_fall_animation", "Block Fall Animation", true),
 
 		std::make_shared<Seperator>(),
 
-		std::make_shared<TextControl>("Audio", 0.8f),
-		std::make_shared<VolumeControl>("volume",	  "Master Volume", "assets/sfx/lock.mp3"),
-		std::make_shared<VolumeControl>("bgm_volume", "BGM Volume", "assets/sfx/lock.mp3"),
-		std::make_shared<VolumeControl>("sfx_volume", "SFX Volume", "assets/sfx/lock.mp3"),
+		std::make_shared<TextControl>(renderer, "Audio", 0.8f),
+		std::make_shared<VolumeControl>(renderer, "volume",	  "Master Volume", "assets/sfx/lock.mp3"),
+		std::make_shared<VolumeControl>(renderer, "bgm_volume", "BGM Volume", "assets/sfx/lock.mp3"),
+		std::make_shared<VolumeControl>(renderer, "sfx_volume", "SFX Volume", "assets/sfx/lock.mp3"),
 
 
 		std::make_shared<Seperator>(),
 
-		std::make_shared<TextControl>("Controls", 0.8f),
+		std::make_shared<TextControl>(renderer, "Controls", 0.8f),
 
 		std::make_shared<KeySetting>("key_left", "Left"),
 		std::make_shared<KeySetting>("key_right", "Right"),
@@ -137,14 +137,13 @@ void SettingsMenu::update(float delta_time) {
 }
 
 
-void SettingsMenu::draw(SDL_Renderer* renderer) {
-	static SDL_Texture* settings_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, m_content_size.x, m_content_size.y);
+void SettingsMenu::draw(Renderer& renderer) {
+	static SDL_Texture* settings_texture = SDL_CreateTexture(renderer.m_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, m_content_size.x, m_content_size.y);
 
-	set_draw_color(renderer, c_fg);
-	draw_rect(renderer, position, size);
+	renderer.draw_rect(position, size, c_fg);
 
 	// Title
-	draw_text(renderer, "Settings", m_border_box.pos + glm::ivec2(m_border_box.w / 2, 0), c_bg, true, 1.4f);
+	renderer.draw_text("Settings", m_border_box.pos + glm::ivec2(m_border_box.w / 2, 0), c_bg, true, 1.4f);
 
 	// Scrollbar
 	Rect scroll_area = Rect(m_content_box.x + m_content_box.w - 8, m_content_box.y - 15, 30, m_content_box.h + 30);
@@ -193,20 +192,19 @@ void SettingsMenu::draw(SDL_Renderer* renderer) {
 
 		Color scrollbar_color = lerp(c_bg, c_fg, std::clamp(1.f - (m_scrollbar_timer * 10), 0.f, 1.f));
 
-		set_draw_color(renderer, scrollbar_color);
-		draw_rect(renderer, scrollbar_rect);
+		renderer.draw_rect(scrollbar_rect, scrollbar_color);
 	}
 
-	SDL_SetRenderTarget(renderer, settings_texture);
-	set_draw_color(renderer, c_fg);
-	SDL_RenderClear(renderer);
+	SDL_SetRenderTarget(renderer.m_renderer, settings_texture);
+	set_draw_color(renderer.m_renderer, c_fg);
+	SDL_RenderClear(renderer.m_renderer);
 
 	for (auto& control : controls) {
 		control->draw(renderer);
 	}
 
-	SDL_SetRenderTarget(renderer, NULL);
+	SDL_SetRenderTarget(renderer.m_renderer, NULL);
 	Rect blit_section = { 0, m_scroll, m_content_box.w, m_content_box.h};
-	SDL_RenderCopy(renderer, settings_texture, blit_section.sdl(), m_content_box.sdl());
+	SDL_RenderCopy(renderer.m_renderer, settings_texture, blit_section.sdl(), m_content_box.sdl());
 }
 

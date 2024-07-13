@@ -4,6 +4,7 @@
 #include "settings.hpp"
 #include "config.hpp"
 
+
 Seperator::Seperator() {
 	m_rect.w = 400 - c_board_padding * 2;
 	m_rect.h = 32;
@@ -13,13 +14,14 @@ void Seperator::update() {
 
 }
 
-void Seperator::draw(SDL_Renderer* renderer) {
-	set_draw_color(renderer, c_bg);
-	SDL_RenderDrawLine(renderer, m_rect.x, m_rect.y + 16, m_rect.x + 400 - c_board_padding * 2, m_rect.y + 16);
+void Seperator::draw(Renderer& renderer) {
+	renderer.draw_line({ m_rect.x, m_rect.y + 16 }, { m_rect.x + 400 - c_board_padding * 2, m_rect.y + 16 }, c_bg);
+	//set_draw_color(renderer, c_bg);
+	//SDL_RenderDrawLine(renderer, m_rect.x, m_rect.y + 16, m_rect.x + 400 - c_board_padding * 2, m_rect.y + 16);
 }
 
-TextControl::TextControl(std::string text, float size) : m_text(text) {
-	m_rect.size = get_text_size(text, size);
+TextControl::TextControl(Renderer& r, std::string text, float size) : m_text(text) {
+	m_rect.size = r.get_text_size(text, size);
 	m_size = size;
 }
 
@@ -27,8 +29,8 @@ void TextControl::update() {
 
 }
 
-void TextControl::draw(SDL_Renderer* renderer) {
-	draw_text(renderer, m_text, m_rect.pos, c_8, false, m_size);
+void TextControl::draw(Renderer& renderer) {
+	renderer.draw_text(m_text, m_rect.pos, c_8, false, m_size);
 }
 
 
@@ -49,15 +51,13 @@ void KeySetting::update() {
 	}
 }
 
-void KeySetting::draw(SDL_Renderer* renderer) {
-	draw_text(renderer, m_label, m_rect.pos, c_bg, false, 0.5);
-
-	set_draw_color(renderer, c_white);
-	draw_rect(renderer, m_key_edit_rect);
+void KeySetting::draw(Renderer& renderer) {
+	renderer.draw_text(m_label, m_rect.pos, c_bg, false, 0.5);
+	renderer.draw_rect(m_key_edit_rect, c_white);
 
 	if (!m_active) {
 		char str[2] = { static_cast<char>(sm.get_config_setting<SDL_Keycode>(m_config_key)), 0 };
-		draw_text(renderer, str, m_key_edit_rect.pos + glm::ivec2{ 2, -14 }, c_0);
+		renderer.draw_text(str, m_key_edit_rect.pos + glm::ivec2{ 2, -14 }, c_0);
 	}
 }
 
@@ -86,21 +86,17 @@ void Checkbox::update() {
 	}
 }
 
-void Checkbox::draw(SDL_Renderer* renderer) {
+void Checkbox::draw(Renderer& renderer) {
 	//set_draw_color(renderer, c_1);
 	//draw_rect(renderer, m_rect);
 
-	draw_text(renderer, m_label, m_rect.pos, c_bg, false, 0.5);
+	renderer.draw_text(m_label, m_rect.pos, c_bg, false, 0.5);
 
-	set_draw_color(renderer, c_white);
-	draw_rect(renderer, m_checkbox_rect);
+	renderer.draw_rect(m_checkbox_rect, c_white);
 
 	if (sm.get_config_setting(m_config_key, m_def)) {
-		set_draw_color(renderer, c_0);
-		draw_rect(renderer, m_checkbox_rect.pos + glm::ivec2(2), m_checkbox_rect.size - glm::ivec2(4));
+		renderer.draw_rect(m_checkbox_rect.pos + glm::ivec2(2), m_checkbox_rect.size - glm::ivec2(4), c_0);
 	}
-
-
 }
 
 void Checkbox::set_pos(glm::ivec2 position) {
@@ -108,9 +104,10 @@ void Checkbox::set_pos(glm::ivec2 position) {
 	m_checkbox_rect.pos = { position.x + m_rect.size.x - m_checkbox_rect.size.x, position.y };
 }
 
-VolumeControl::VolumeControl(std::string config_key, std::string label, std::string sample) {
+VolumeControl::VolumeControl(Renderer& r, std::string config_key, std::string label, std::string sample) {
 	m_config_key = config_key;
 	m_label = label;
+	m_text_size = r.get_text_size(label);
 	m_sample = asset_manager.GetByPath<Audio>(sample);
 }
 
@@ -144,14 +141,8 @@ void VolumeControl::update() {
 
 }
 
-void VolumeControl::draw(SDL_Renderer* renderer) {
-	set_draw_color(renderer, c_bg);
-
-	draw_text(renderer, m_label, m_rect.pos, c_bg, false, 0.5);
-
+void VolumeControl::draw(Renderer& renderer) {
 	int line_len = m_line_end.x - m_line_start.x;
-
-	SDL_RenderDrawLine(renderer, m_line_start.x, m_line_start.y, m_line_end.x, m_line_end.y);
 
 	float& vol = sm.get_config_setting<float>(m_config_key, .5);
 	glm::ivec2 slider_pos = m_line_start + glm::ivec2(line_len * vol, 0);
@@ -159,14 +150,16 @@ void VolumeControl::draw(SDL_Renderer* renderer) {
 
 	m_slider_rect = { slider_pos - slider_size / 2, slider_size };
 
-	draw_rect(renderer, m_slider_rect);
+	renderer.draw_text(m_label, m_rect.pos, c_bg, false, 0.5);
+	renderer.draw_line(m_line_start, m_line_end, c_bg);
+	renderer.draw_rect(m_slider_rect, c_bg);
 }
 
 void VolumeControl::set_pos(glm::ivec2 position) {
 	m_rect.size = { m_parent->get_content_box().w, 32 };
 	m_rect.pos = position;
 
-	int label_width = get_text_size(m_label, 0.5f).x;
+	int label_width = m_text_size.y;
 
 	int line_y = m_rect.y + m_rect.h / 2;
 

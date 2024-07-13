@@ -18,14 +18,24 @@
 #include "piece.hpp"
 #include "board.hpp"
 #include "settings.hpp"
+#include "renderer.hpp"
+
+
 
 int WinMain(int hInstance, int hPrevInstance, char* pCmdLine, int nCmdShow) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 	Mix_Init(MIX_INIT_MP3);
-
+	   
 	SDL_Window* window = SDL_CreateWindow("NOTRIS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, c_window_width, c_window_height, SDL_WINDOW_RESIZABLE);
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	//SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+	Renderer r = {};
+
+	r.init(window);
+
+	SDL_Renderer* renderer = r.m_renderer;
+	r.set_background_color(c_0);
 
 	SDL_Event e = {};
 
@@ -35,9 +45,6 @@ int WinMain(int hInstance, int hPrevInstance, char* pCmdLine, int nCmdShow) {
 	TTF_Font* eight_bit_arcade_out = TTF_OpenFont("assets/8-bit Arcade Out.ttf", 64);
 
 	int device = Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 512);
-
-
-	G_FONT = eight_bit_arcade_in;
 
 	auto title_surface_out = TTF_RenderText_Blended(eight_bit_arcade_out, "NOTRIS", c_3.sdl());
 	auto title_surface = TTF_RenderText_Blended(eight_bit_arcade_in, "NOTRIS", c_1.sdl());
@@ -50,7 +57,7 @@ int WinMain(int hInstance, int hPrevInstance, char* pCmdLine, int nCmdShow) {
 
 
 	Board board;
-	SettingsMenu menu;
+	SettingsMenu menu(r);
 
 	bool settings_open = false;
 
@@ -67,7 +74,6 @@ int WinMain(int hInstance, int hPrevInstance, char* pCmdLine, int nCmdShow) {
 	sm.load_settings("settings.ini");
 
 	while (running) {
-
 		last_time = time;
 		time = SDL_GetTicks();
 		delta_time = (float)(time - last_time) / 1000.f;
@@ -98,12 +104,13 @@ int WinMain(int hInstance, int hPrevInstance, char* pCmdLine, int nCmdShow) {
 					if (x != window_size.x) {
 						int new_y = x * c_window_height / c_window_width;
 						SDL_SetWindowSize(window, x, new_y);
-						SDL_RenderSetScale(renderer, (float)x / c_window_width, (float)new_y / c_window_height);
+
+						r.m_scale = (float)x / c_window_width;
 					}
 					else {
 						int new_x = y * c_window_width / c_window_height;
 						SDL_SetWindowSize(window, new_x, y);
-						SDL_RenderSetScale(renderer, (float)new_x / c_window_width, (float)y / c_window_height);
+						r.m_scale = (float)y / c_window_width;
 
 					}
 
@@ -139,9 +146,6 @@ int WinMain(int hInstance, int hPrevInstance, char* pCmdLine, int nCmdShow) {
 			board.update(delta_time);
 		}
 
-		set_draw_color(renderer, c_0);
-		SDL_RenderClear(renderer);
-
 
 		glm::ivec2 title_size = {};
 		SDL_QueryTexture(title_texture, nullptr, nullptr, &title_size.x, &title_size.y);
@@ -150,8 +154,8 @@ int WinMain(int hInstance, int hPrevInstance, char* pCmdLine, int nCmdShow) {
 		// Not sure what the 1.5 is about
 		glm::ivec2 position = glm::ivec2{ c_window_width / 2 , c_board_margin.y / 2 } - glm::ivec2(title_size.x / 2, title_size.y / 1.5); 
 
-		auto r = make_rect(position, title_size);
-		SDL_RenderCopy(renderer, title_texture, nullptr, &r);
+		auto rect = make_rect(position, title_size);
+		SDL_RenderCopy(renderer, title_texture, nullptr, &rect);
 
 
 		char score_buff[20];
@@ -159,22 +163,21 @@ int WinMain(int hInstance, int hPrevInstance, char* pCmdLine, int nCmdShow) {
 
 		glm::ivec2 score_position = glm::ivec2{ c_window_width / 2, board_frame_pos.y + board_size.y };
 
-		draw_text(renderer, score_buff, score_position, c_fg, true);
+		r.draw_text(score_buff, score_position, c_fg, true);
 
-		board.draw(renderer);
+		board.draw(r);
 
 		if (settings_open) {
-			menu.draw(renderer);
+			menu.draw(r);
 		}
 
 
-		SDL_RenderPresent(renderer);
+		r.update();
 	}
 
 	TTF_CloseFont(eight_bit_arcade_in);
 	TTF_CloseFont(eight_bit_arcade_out);
 
-	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 
 	return 0;

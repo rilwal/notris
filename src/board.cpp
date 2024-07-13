@@ -507,13 +507,10 @@ float Board::get_drop_speed() {
 
 }
 
-void Board::draw(SDL_Renderer* renderer) {
+void Board::draw(Renderer& renderer) {
 	// First, do some common drawing
-	set_draw_color(renderer, c_board_bg);
-	draw_rect(renderer, board_frame_pos, board_size);
-
-	set_draw_color(renderer, c_black);
-	draw_rect(renderer, board_pos, board_size - glm::ivec2(c_board_padding * 2));
+	renderer.draw_rect(board_frame_pos, board_size, c_board_bg);
+	renderer.draw_rect(board_pos, board_size - glm::ivec2(c_board_padding * 2), c_black);
 
 	// render a message if we have one
 	if (message_time > 0) {
@@ -526,13 +523,13 @@ void Board::draw(SDL_Renderer* renderer) {
 		// Center in the right margin!
 		glm::ivec2 position = board_frame_pos + board_size;
 		position += glm::ivec2((c_window_size.x - position.x) / 2, 0);
-		draw_text(renderer, message, position, message_color, true, 0.7f);
+		renderer.draw_text(message, position, message_color, true, 0.7f);
 	}
 
 
 	char level_buf[32];
 	snprintf(level_buf, sizeof(level_buf), "LEVEL %d", level);
-	draw_text(renderer, level_buf, { board_frame_pos.x / 2, board_size.y + board_frame_pos.y }, c_fg, true, 0.8f);
+	renderer.draw_text(level_buf, { board_frame_pos.x / 2, board_size.y + board_frame_pos.y }, c_fg, true, 0.8f);
 
 
 	// Then draw based on the state
@@ -553,11 +550,10 @@ void Board::display_message(std::string m, float time) {
 	message_time = time;
 }
 
-void Board::draw_line_clear_animation(SDL_Renderer * renderer) {
-	set_draw_color(renderer, c_board_bg);
+void Board::draw_line_clear_animation(Renderer& renderer) {
 	for (int y = 0; y < c_board_height; y++) {
 		for (int x = 0; x < c_board_width; x++) {
-			draw_rect(renderer, board_pos + c_block_margin + glm::ivec2{ x, y } *block_stride, block_size);
+			renderer.draw_rect(board_pos + c_block_margin + glm::ivec2{ x, y } *block_stride, block_size, c_board_bg);
 		}
 	}
 
@@ -572,8 +568,7 @@ void Board::draw_line_clear_animation(SDL_Renderer * renderer) {
 					if (dimmed) {
 						c.lighten(0.6f);
 					}
-					set_draw_color(renderer, c);
-					draw_rect(renderer, board_pos + c_block_margin + glm::ivec2{ x, y } *block_stride, block_size);
+					renderer.draw_rect(board_pos + c_block_margin + glm::ivec2{ x, y } *block_stride, block_size, c);
 				}
 			}
 		}
@@ -592,42 +587,37 @@ void Board::draw_line_clear_animation(SDL_Renderer * renderer) {
 					c.lighten(0.6f);
 				}
 
-				set_draw_color(renderer, c_black);
-				draw_rect(renderer, board_pos + c_block_margin + glm::ivec2{ x, y } * block_stride - glm::ivec2{ c_block_margin } + glm::ivec2(0, current_y), block_size + glm::ivec2{ c_block_margin } *2);
-
-				set_draw_color(renderer, c);
-				draw_rect(renderer, board_pos + c_block_margin + glm::ivec2{ x, y } * block_stride + glm::ivec2(0, current_y), block_size);
+				renderer.draw_rect(board_pos + c_block_margin + glm::ivec2{ x, y } * block_stride - glm::ivec2{ c_block_margin } + glm::ivec2(0, current_y), block_size + glm::ivec2{ c_block_margin } *2, c_black);
+				renderer.draw_rect(board_pos + c_block_margin + glm::ivec2{ x, y } * block_stride + glm::ivec2(0, current_y), block_size, c);
 			}
 		}
 	}
 }
 
-void Board::draw_pieces(SDL_Renderer* renderer, float lightness) {
+void Board::draw_pieces(Renderer& renderer, float lightness) {
 	for (int y = 0; y < c_board_height; y++) {
 		for (int x = 0; x < c_board_width; x++) {
 			Color c = board_data[y * c_board_width + x];
 			if (c != c_nothing) {
 				c.lighten(lightness);
-				set_draw_color(renderer, c);
-				draw_rect(renderer, board_pos + c_block_margin + glm::ivec2{ x, y } *block_stride, block_size);
+				renderer.draw_rect(board_pos + c_block_margin + glm::ivec2{ x, y } *block_stride, block_size, c);
 			}
 			else {
-				set_draw_color(renderer, c_board_bg);
-				draw_rect(renderer, board_pos + c_block_margin + glm::ivec2{ x, y } *block_stride, block_size);
+				renderer.draw_rect(board_pos + c_block_margin + glm::ivec2{ x, y } *block_stride, block_size, c_board_bg);
 			}
 		}
 	}
 }
 
-void Board::draw_game_over(SDL_Renderer* renderer) {
+void Board::draw_game_over(Renderer& renderer) {
 
 	draw_pieces(renderer, 0.6f);
-	draw_text(renderer, "GAME OVER", board_frame_pos + board_size / 2 - glm::ivec2(0, c_block_size * 1.5), c_fg, true);
+	renderer.draw_text("GAME OVER", board_frame_pos + board_size / 2 - glm::ivec2(0, c_block_size * 1.5), c_fg, true);
 
 }
 
 
-void Board::draw_play(SDL_Renderer* renderer) {
+void Board::draw_play(Renderer& renderer) {
 
 
 	draw_pieces(renderer, dimmed ? .6f : 1.0f);

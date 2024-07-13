@@ -6,6 +6,7 @@
 
 #include "util.hpp"
 #include "audio.hpp"
+#include "renderer.hpp"
 
 // UI stuff
 
@@ -37,7 +38,7 @@ protected:
 class IControl {
 public:
 	virtual void update() = 0;
-	virtual void draw(SDL_Renderer* renderer) = 0;
+	virtual void draw(Renderer& renderer) = 0;
 
 	glm::ivec2 get_pos() const { return m_rect.pos; }
 	virtual void set_pos(glm::ivec2 pos) { m_rect.pos = pos; }
@@ -65,7 +66,7 @@ public:
 	Seperator();
 
 	void update() override;
-	void draw(SDL_Renderer* renderer) override;
+	void draw(Renderer& renderer) override;
 };
 
 
@@ -73,10 +74,10 @@ public:
 class TextControl : public IControl {
 public:
 
-	TextControl(std::string text, float size = 1.0f);;
+	TextControl(Renderer& r, std::string text, float size = 1.0f);;
 
 	void update() override;
-	void draw(SDL_Renderer* renderer) override;
+	void draw(Renderer& renderer) override;
 
 private:
 	float m_size;
@@ -88,7 +89,7 @@ struct KeySetting : public IControl {
 	KeySetting(std::string config_key, std::string label);
 
 	void update() override;
-	void draw(SDL_Renderer* renderer) override;
+	void draw(Renderer& renderer) override;
 
 	bool is_active() const;
 
@@ -105,7 +106,7 @@ struct Checkbox : public IControl {
 	Checkbox(std::string config_key, std::string label, bool def);
 
 	void update() override;
-	void draw(SDL_Renderer* renderer) override;
+	void draw(Renderer& renderer) override;
 
 
 	void set_pos(glm::ivec2 position) override;
@@ -118,16 +119,18 @@ private:
 
 struct VolumeControl : public IControl {
 public:
-	VolumeControl(std::string config_key, std::string label, std::string sample="");
+	VolumeControl(Renderer& r, std::string config_key, std::string label, std::string sample="");
 
 	void update() override;
-	void draw(SDL_Renderer* renderer) override;
+	void draw(Renderer& renderer) override;
 
 	void set_pos(glm::ivec2 position) override;
 
 private:
 	Rect m_slider_rect = {};
 	Rect m_skip_area = {};
+	
+	glm::ivec2 m_text_size = {};
 
 	glm::ivec2 m_line_start = {};
 	glm::ivec2 m_line_end = {};

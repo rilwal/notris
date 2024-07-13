@@ -62,10 +62,10 @@ struct SettingsMenu : public IMenu {
 	int m_scrollbar_drag_offset;
 	bool m_dragging_scrollbar;
 
-	SettingsMenu();
+	SettingsMenu(Renderer& renderer);
 
 	void update(float delta_time);
 
-	void draw(SDL_Renderer* renderer);
+	void draw(Renderer& renderer);
 };
 

@@ -9,6 +9,7 @@
 #include "config.hpp"
 #include "color.hpp"
 #include "piece.hpp"
+#include "renderer.hpp"
 
 
 struct Board {
@@ -40,7 +41,7 @@ public:
 
 	void update(float delta_time);
 
-	void draw(SDL_Renderer* renderer);
+	void draw(Renderer& renderer);
 
 	int get_score() { return score; };
 
@@ -53,10 +54,10 @@ private:
 	void update_line_clear_animation(float delta_time);
 	void update_game_over(float delta_time);
 
-	void draw_play(SDL_Renderer* renderer);
-	void draw_line_clear_animation(SDL_Renderer* renderer);
-	void draw_pieces(SDL_Renderer* renderer, float lightness);
-	void draw_game_over(SDL_Renderer* renderer);
+	void draw_play(Renderer& renderer);
+	void draw_line_clear_animation(Renderer& renderer);
+	void draw_pieces(Renderer& renderer, float lightness);
+	void draw_game_over(Renderer& renderer);
 
 
 	Color board_data[c_board_width * c_board_height];
